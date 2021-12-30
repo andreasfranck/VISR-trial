@@ -129,14 +129,16 @@ UdpReceiver::Impl::Impl( std::size_t port,
             boost::asio::placeholders::error,
             boost::asio::placeholders::bytes_transferred)
     );
-#ifdef VISR_DISABLE_THREADS
-    throw std::invalid_argument( "UdpReceiver: Asynchronous mode is not supported because threads are disabled." );
-#else
     if (mMode == Mode::Asynchronous)
     {
+#ifdef VISR_DISABLE_THREADS
+      throw std::invalid_argument(
+          "UdpReceiver: Asynchronous mode is not supported because threads are "
+          "disabled." );
+#else
         mServiceThread.reset(new boost::thread(boost::bind(&boost::asio::io_service::run, mIoService)));
-    }
 #endif // VISR_DISABLE_THREADS
+    }
 }
 
 UdpReceiver::Impl::~Impl()
